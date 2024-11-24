@@ -79,7 +79,7 @@ class Library:
         """
         for book in self.books:
             if book_id == book.id:
-                book.status = status
+                book.status = status_
             else:
                 print("No book found")
 
