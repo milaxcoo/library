@@ -1,13 +1,13 @@
-
 class Book:
     """Класс, представляющий книгу."""
-    def __init__(self, title: str, author: str, year: int, status: bool):
+    def __init__(self, title: str, author: str, year: int, status: bool) -> None:
         """
         Инициализирует объект книги.
         :param title: Название книги.
         :param author: Автор книги.
         :param year: Год издания.
         :param status: Статус книги ("в наличии" или "выдана").
+        :param id: Уникальный идентификатор книги.
         """
         self.title = title
         self.author = author
@@ -15,30 +15,71 @@ class Book:
         self.status = status
         self.id = self.year + str(len(self.title)) + str(len(self.author)) + str(status)
 
-    def __str__(self):
+    def to_text(self) -> str:
+        """
+        Преобразует объект книги в строку для сохранения в текстовом файле.
+        :return: Строка в формате "id|title|author|year|status".
+        """
+        return f"{self.id}|{self.title}|{self.author}|{self.year}|{self.status}"
+
+    def from_text(line: str) -> "Book":
+        """
+        Создаёт объект книги из строки.
+        :param line: Строка в формате "id|title|author|year|status".
+        :return: Объект Book.
+        """
+        parts = line.strip().split("|")
+        return Book(parts[1], parts[2], parts[3], parts[4])
+
+    
+    def __str__(self) -> str:
         """
         Возвращает строковое представление книги.
-        :return: Строка с информацией о книге.
         """
         return f"ID: {self.id} - {self.title} ({self.year}) - {self.author}. Status: {self.status}"
 
 
 class Library:
     """Класс управления библиотекой."""
-    def __init__(self):
-        """Инициализирует пустую библиотеку."""
+    def __init__(self, file: str = "library.txt") -> None:
+        """
+        Инициализирует библиотеку с загрузкой данных из файла.
+        :param file: Имя файла для хранения данных.
+        """
         self.books = []
+        self.file = file
+        self.load_books()
 
-    def add_book(self, book):
+    def save_books(self) -> None:
+        """Сохраняет книги в текстовый файл."""
+        try:
+            with open(self.file, "w", encoding="utf-8") as f:
+                for book in self.books:
+                    f.write(book.to_text() + "\n")
+            print("Данные сохранены.")
+        except Exception as e:
+            print(f"Ошибка при сохранении данных: {e}")
+
+    def load_books(self) -> None:
+        """Загружает книги из текстового файла."""
+        try:
+            with open(self.file, "r", encoding="utf-8") as f:
+                self.books = [Book.from_text(line) for line in f]
+            print("Данные успешно загружены.")
+        except FileNotFoundError:
+            print("Файл с данными не найден. Будет создан новый.")
+        except Exception as e:
+            print(f"Ошибка при загрузке данных: {e}")
+
+
+    def add_book(self, book) -> None:
         """
         Добавляет книгу в библиотеку.
-        :param title: Название книги.
-        :param author: Автор книги.
-        :param year: Год издания.
         """
         self.books.append(book)
+        self.save_books()
 
-    def remove_book(self, book_id):
+    def remove_book(self, book_id) -> None:
         """
         Удаляет книгу из библиотеки по её ID.
         :param book_id: Уникальный идентификатор книги.
@@ -49,7 +90,7 @@ class Library:
             else:
                 print("No book found")
 
-    def get_books(self):
+    def get_books(self) -> None:
         """
         Отображает все книги в библиотеке.
         """
@@ -60,7 +101,7 @@ class Library:
                 print(book)
 
 
-    def search_book(self, request):
+    def search_book(self, request) -> None:
         """
         Ищет книги в библиотеке по названию или автору.
         :param request: Строка для поиска.
@@ -71,7 +112,7 @@ class Library:
             else:
                 print("No book found")
 
-    def update_status(self, book_id, status_: bool):
+    def update_status(self, book_id, status_: bool) -> None:
         """
         Обновляет статус книги.
         :param book_id: Уникальный идентификатор книги.
@@ -87,14 +128,16 @@ class Library:
 if __name__ == "__main__":
     """Основная функция, реализующая консольное меню управления библиотекой."""
     library = Library()
+
     while True:
-        print("1. Add book")
+        print("\n1. Add book")
         print("2. Remove book")
         print("3. Get books")
         print("4. Search book")
         print("5. Update book status")
         print("6. Exit")
         choice = input("Enter your choice: ")
+
         if choice == "1":
             title = input("Enter title: ")
             author = input("Enter author: ")
