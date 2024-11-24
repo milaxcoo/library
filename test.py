@@ -71,11 +71,11 @@ class Library:
             else:
                 print("No book found")
 
-    def update_status(self, book_id, status: bool):
+    def update_status(self, book_id, status_: bool):
         """
         Обновляет статус книги.
         :param book_id: Уникальный идентификатор книги.
-        :param new_status: Новый статус книги типа bool ("в наличии" или "выдана").
+        :param status_: Новый статус книги типа bool ("в наличии" или "выдана").
         """
         for book in self.books:
             if book_id == book.id:
